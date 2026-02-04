@@ -213,11 +213,11 @@ function Functions:UpdateSmartZoomState(event)
 
     local newState = ZOOM_STATE_NONE
     local targetYards
-        if db.autoCombatZoom then
-             targetYards = db.minZoomFactor
-        else
-             targetYards = db.maxZoomFactor
-        end
+    if db.autoCombatZoom then
+        targetYards = db.minZoomFactor
+    else
+        targetYards = db.maxZoomFactor
+    end
 
     if db.autoCombatZoom and (inCombat or forceCombat) then
         newState = ZOOM_STATE_COMBAT
@@ -260,20 +260,19 @@ function Functions:AdjustCamera()
     local db = ns.Database.db.profile
     local LibCamera = LibStub("LibCamera-1.0", true)
 
-    if db.autoCombatZoom and db.autoMountZoom or db.autoCombatZoom then
+    if db.autoCombatZoom or db.autoMountZoom then
         Functions:UpdateSmartZoomState("manual_update")
     else
+        local targetYards = db.maxZoomFactor
+        local targetFactor = targetYards / CONVERSION_RATIO
 
-    local targetYards = db.maxZoomFactor
-    local targetFactor = targetYards / CONVERSION_RATIO
+        UpdateCVar("cameraDistanceMaxZoomFactor", targetFactor)
 
-    UpdateCVar("cameraDistanceMaxZoomFactor", targetFactor)
+        if LibCamera then
+            LibCamera:SetZoomUsingCVar(targetYards, db.zoomTransitionTime or 0.5)
+        end
 
-    if LibCamera then
-        LibCamera:SetZoomUsingCVar(targetYards, db.zoomTransitionTime or 0.5)
-    end
-
-    Functions:logMessage("info", "Smart zoom disabled, applying fixed max distance.")
+        Functions:logMessage("info", "Smart zoom disabled, applying fixed max distance.")
     end
     UpdateCVar("cameraDistanceMoveSpeed", db.moveViewDistance)
     UpdateCVar("cameraReduceUnexpectedMovement", db.reduceUnexpectedMovement and 1 or 0)
@@ -291,7 +290,7 @@ function Functions:OnCVarUpdate(_, cvarName, value)
     local db = ns.Database.db.profile
 
     if (cvarName == "cameraDistanceMaxZoomFactor" or cvarName == "cameraDistanceMax") then
-        if db.autoCombatZoom and db.autoMountZoom then 
+        if db.autoCombatZoom or db.autoMountZoom then 
             return 
         end
     end
