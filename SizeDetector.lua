@@ -2,7 +2,6 @@ local addonName, ns = ...
 ns.SizeDetector = {}
 local SizeDetector = ns.SizeDetector
 
-local C_Timer = C_Timer
 local UnitExists = UnitExists
 local UnitIsPlayer = UnitIsPlayer
 local UnitCanAttack = UnitCanAttack
@@ -10,10 +9,6 @@ local UnitGUID = UnitGUID
 local UnitClassification = UnitClassification
 local UnitLevel = UnitLevel
 local UnitCreatureType = UnitCreatureType
-local UnitAffectingCombat = UnitAffectingCombat
-local CreateFrame = CreateFrame
-
-local IS_RETAIL = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 
 local SIZE_CATEGORY = {
     TINY     = 0.1,
@@ -25,13 +20,7 @@ local SIZE_CATEGORY = {
 }
 
 local activeThreatList = {}
-local sizeCache = {}
-local measureQueue = {}
-local pendingMeasurement = nil
 local recalculateCallback = nil
-
-local measureScene = nil
-local measureActor = nil
 
 local function LogDebug(msg)
     if ns.Functions and ns.Functions.logMessage then
@@ -80,100 +69,6 @@ local function GetHeuristicSize(unit)
     return SIZE_CATEGORY.SMALL
 end
 
--- ================= MODELSCENE BOUNDING BOX =================
--- ModelScene operations are NEVER called during combat to avoid taint.
--- Measurements are queued during combat and processed after PLAYER_REGEN_ENABLED.
-
-local function InitMeasureScene()
-    if measureScene then return end
-    measureScene = CreateFrame("ModelScene", nil, nil)
-    measureScene:SetSize(1, 1)
-    measureScene:Hide()
-    measureActor = measureScene:CreateActor()
-end
-
-InitMeasureScene()
-
-local function HeightToCategory(height)
-    if height <= 2.0 then
-        return SIZE_CATEGORY.SMALL
-    end
-    if height <= 4.0 then
-        return SIZE_CATEGORY.MEDIUM
-    end
-    if height <= 7.0 then
-        return SIZE_CATEGORY.LARGE
-    end
-    if height <= 12.0 then
-        return SIZE_CATEGORY.HUGE
-    end
-    return SIZE_CATEGORY.COLOSSAL
-end
-
-local function ProcessSingleMeasurement(guid, unit)
-    if not IS_RETAIL then return end
-    if not measureScene or not measureActor then return end
-    if not UnitExists(unit) then return end
-
-    measureActor:ClearModel()
-    measureActor:SetModelByUnit(unit)
-
-    pendingMeasurement = { guid = guid }
-
-    local attempts = 0
-    local ticker
-    ticker = C_Timer.NewTicker(0.05, function()
-        attempts = attempts + 1
-
-        if not pendingMeasurement or pendingMeasurement.guid ~= guid then
-            ticker:Cancel()
-            return
-        end
-
-        if measureActor:IsLoaded() then
-            ticker:Cancel()
-
-            local bottom, top = measureActor:GetActiveBoundingBox()
-            if bottom and top then
-                local bz = bottom.z or bottom[3] or 0
-                local tz = top.z or top[3] or 0
-                local height = tz - bz
-
-                local normalizedSize = HeightToCategory(height)
-
-                local modelFileID = measureActor:GetModelFileID()
-                if modelFileID then
-                    sizeCache[modelFileID] = normalizedSize
-                end
-
-                if activeThreatList[guid] then
-                    local oldSize = activeThreatList[guid].size
-                    activeThreatList[guid].size = normalizedSize
-                    activeThreatList[guid].modelFileID = modelFileID
-
-                    if math.abs(normalizedSize - oldSize) > 0.05 and recalculateCallback then
-                        recalculateCallback()
-                    end
-                end
-
-                LogDebug(string.format(
-                    "ModelScene measured: %s height=%.1f size=%.1f",
-                    guid, height, normalizedSize
-                ))
-            end
-
-            pendingMeasurement = nil
-            return
-        end
-
-        if attempts >= 20 then
-            ticker:Cancel()
-            pendingMeasurement = nil
-            LogDebug("ModelScene measurement timed out for: " .. guid)
-        end
-    end)
-end
-
 -- ================= THREAT LIST =================
 
 local function GetLargestAliveSize()
@@ -203,27 +98,9 @@ function SizeDetector:MeasureTarget(unit)
 
     activeThreatList[guid] = {
         size = heuristicSize,
-        modelFileID = nil,
     }
 
-    LogDebug(string.format("Threat added: %s (heuristic: %.1f)", guid, heuristicSize))
-
-    if UnitAffectingCombat("player") then
-        measureQueue[guid] = unit
-    else
-        ProcessSingleMeasurement(guid, unit)
-    end
-end
-
-function SizeDetector:ProcessMeasureQueue()
-    if UnitAffectingCombat("player") then return end
-
-    for guid, unit in pairs(measureQueue) do
-        if activeThreatList[guid] and UnitExists(unit) then
-            ProcessSingleMeasurement(guid, unit)
-        end
-    end
-    wipe(measureQueue)
+    LogDebug(string.format("Threat added: %s (size: %.1f)", guid, heuristicSize))
 end
 
 function SizeDetector:OnUnitDied(guid)
@@ -232,14 +109,11 @@ function SizeDetector:OnUnitDied(guid)
 
     LogDebug(string.format("Threat died: %s (size was: %.1f)", guid, activeThreatList[guid].size))
     activeThreatList[guid] = nil
-    measureQueue[guid] = nil
     return true
 end
 
 function SizeDetector:ClearThreats()
     wipe(activeThreatList)
-    wipe(measureQueue)
-    pendingMeasurement = nil
     LogDebug("Threat list cleared")
 end
 
