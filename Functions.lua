@@ -222,7 +222,7 @@ function Functions:UpdateSmartZoomState(event)
 
     if db.autoCombatZoom and (inCombat or forceCombat) then
         newState = ZOOM_STATE_COMBAT
-        targetYards = db.maxZoomFactor
+        targetYards = db.combatZoomFactor
     elseif db.autoMountZoom and isMounted then
         newState = ZOOM_STATE_MOUNT
         targetYards = db.mountZoomFactor

@@ -104,7 +104,7 @@ function Config:SetupOptions()
                         set = function(_, val) SetOption("maxZoomFactor", val) end,
                         order = 1,
                         -- Вимикаємо цей слайдер, якщо увімкнено Combat Zoom, бо він перекриває налаштування
-                        disabled = function() return GetOption("autoCombatZoom") end, 
+                        disabled = function() return GetOption("autoCombatZoom") or GetOption("autoMountZoom") end,
                     },
                     zoomTransition = {
                         type = "range",
@@ -180,8 +180,8 @@ function Config:SetupOptions()
                         min = 1.0, 
                         max = defaults.MAX_POSSIBLE_DISTANCE or 39,
                         step = 1.0,
-                        get = function() return GetOption("maxZoomFactor") end,
-                        set = function(_, val) SetOption("maxZoomFactor", val) end,
+                        get = function() return GetOption("combatZoomFactor") end,
+                        set = function(_, val) SetOption("combatZoomFactor", val) end,
                         order = 12,
                         disabled = function() return not GetOption("autoCombatZoom") end,
                     },
