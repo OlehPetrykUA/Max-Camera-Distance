@@ -25,14 +25,29 @@ L["COMBAT_SETTINGS_WARNING"] = "|cff0070deDieser Bereich ermöglicht es der Kame
 L["AUTO_ZOOM_COMBAT"] = "Intelligenten Kampf-Zoom aktivieren"
 L["AUTO_ZOOM_COMBAT_DESC"] = "Wenn aktiviert, zoomt die Kamera bei Kampfbeginn automatisch heraus und nach Kampfende wieder hinein."
 
+L["FORCE_COMBAT_INSTANCE"] = "Instanzen als Kampf behandeln"
+L["FORCE_COMBAT_INSTANCE_DESC"] = "Wenn du dich in einem Dungeon, Schlachtzug, einer Arena oder einem Schlachtfeld befindest, wird immer die Kampfdistanz verwendet — auch außerhalb des Kampfes."
+
 L["MAX_COMBAT_ZOOM_FACTOR"] = "Distanz im Kampf"
 L["MAX_COMBAT_ZOOM_FACTOR_DESC"] = "Die gewünschte Kameradistanz, während du dich IM KAMPF befindest."
 
 L["MIN_COMBAT_ZOOM_FACTOR"] = "Distanz außerhalb des Kampfes"
 L["MIN_COMBAT_ZOOM_FACTOR_DESC"] = "Die gewünschte Kameradistanz, wenn du dich NICHT im Kampf befindest (Ruhemodus)."
 
-L["DISMOUNT_DELAY"] = "Verzögerung nach Kampfende"
-L["DISMOUNT_DELAY_DESC"] = "Zeit in Sekunden, die nach dem Verlassen des Kampfes gewartet wird, bevor die Kamera wieder hineinzoomt."
+L["ZOOM_TRANSITION"] = "Übergangsgeschwindigkeit"
+L["ZOOM_TRANSITION_DESC"] = "Zeit in Sekunden für den sanften Übergang zwischen Kameradistanzen (Kampf/Reittier/Normal). Höhere Werte = langsamer, sanfter."
+
+-- Mount
+L["MOUNT_SETTINGS_HEADER"] = "Reittier- & Reiseeinstellungen"
+L["AUTO_MOUNT_ZOOM"] = "Auto-Zoom beim Reiten aktivieren"
+L["AUTO_MOUNT_ZOOM_DESC"] = "Zoomt automatisch heraus, wenn aufgesessen oder in Reiseform (Druide/Schamane/Rufer). Nur aktiv außerhalb des Kampfes."
+
+L["MOUNT_ZOOM_FACTOR"] = "Reittier-Distanz"
+L["MOUNT_ZOOM_FACTOR_DESC"] = "Die gewünschte Kameradistanz, wenn du reitest/reist."
+
+-- Delay
+L["DISMOUNT_DELAY"] = "Übergangsverzögerung"
+L["DISMOUNT_DELAY_DESC"] = "Zeit in Sekunden, die nach dem Verlassen des Kampfes oder Absitzen gewartet wird, bevor die Kamera wieder hineinzoomt."
 
 -- *** Advanced Settings ***
 L["ADVANCED_SETTINGS"] = "Erweiterte Einstellungen"
@@ -45,6 +60,9 @@ L["RESAMPLE_ALWAYS_SHARPEN_DESC"] = "Erzwingt einen Schärfefilter, auch wenn AM
 
 L["INDIRECT_VISIBILITY"] = "Kamerakollision"
 L["INDIRECT_VISIBILITY_DESC"] = "Steuert, wie die Kamera mit der Umgebung interagiert (reduziert das Clipping durch Objekte)."
+
+L["SOFT_TARGET_INTERACT"] = "Interaktionssymbole (Soft Target)"
+L["SOFT_TARGET_INTERACT_DESC"] = "Zeigt Interaktionssymbole über Spielobjekten (Briefkästen, Kräuter, Portale, NPCs) für einfacheres Anvisieren."
 
 -- *** Messages & UI ***
 L["SETTINGS_CHANGED"] = "Kameraeinstellungen wurden geändert."
@@ -73,3 +91,21 @@ L["DEBUG_LEVEL_ERROR"] = "Fehler"
 L["DEBUG_LEVEL_WARNING"] = "Warnung"
 L["DEBUG_LEVEL_INFO"] = "Info"
 L["DEBUG_LEVEL_DEBUG"] = "Ausführlich"
+
+-- *** Tools Section ***
+L["TOOLS_HEADER"] = "Werkzeuge & Hilfsmittel"
+
+L["UNTRACK_QUESTS_BUTTON"] = "Alle Quests abwählen"
+L["UNTRACK_QUESTS_DESC"] = "Entfernt sofort alle Quests aus dem Aufgabentracker (rechte Bildschirmseite), um Unordnung zu reduzieren und FPS zu verbessern."
+L["QUEST_TRACKER_EMPTY"] = "Quest-Tracker ist bereits leer."
+L["QUEST_TRACKER_CLEARED"] = "%d Quests werden nicht mehr verfolgt."
+
+-- *** Messages ***
+L["DB_NOT_READY"] = "Datenbank noch nicht initialisiert."
+L["CMD_USAGE"] = "Verwendung: /mcd config | autozoom | automount | restore"
+L["SETTINGS_RESTORED"] = "Wiederhergestellt: %s (%.0f Yards)"
+L["ZOOM_SET_MESSAGE"] = "Zoom auf %s gesetzt (%.1f Yards)"
+
+-- *** Toggle States ***
+L["ENABLED"] = "|cff00ff00Aktiviert|r"
+L["DISABLED"] = "|cffff0000Deaktiviert|r"

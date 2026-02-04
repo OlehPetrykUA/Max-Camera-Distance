@@ -29,6 +29,9 @@ L["COMBAT_SETTINGS_WARNING"] = "|cff0070deThis system automatically adjusts came
 L["AUTO_ZOOM_COMBAT"] = "Enable Smart Combat Zoom"
 L["AUTO_ZOOM_COMBAT_DESC"] = "If enabled, the camera will automatically zoom out to the maximum distance when entering combat. (Highest Priority)"
 
+L["FORCE_COMBAT_INSTANCE"] = "Treat Instances as Combat"
+L["FORCE_COMBAT_INSTANCE_DESC"] = "When inside a dungeon, raid, arena, or battleground, always use combat distance even outside of actual combat."
+
 L["MAX_COMBAT_ZOOM_FACTOR"] = "Combat Distance"
 L["MAX_COMBAT_ZOOM_FACTOR_DESC"] = "The target camera distance when you are IN combat."
 
@@ -74,7 +77,8 @@ L["QUEST_TRACKER_CLEARED"] = "Stopped tracking %d quests."
 L["SETTINGS_CHANGED"] = "Camera settings have been updated."
 L["SETTINGS_RESET"] = "Profile has been reset to default values."
 L["DB_NOT_READY"] = "Database not initialized yet."
-L["CMD_USAGE"] = "Usage: /mcd config | autozoom | automount"
+L["CMD_USAGE"] = "Usage: /mcd config | autozoom | automount | restore"
+L["SETTINGS_RESTORED"] = "Restored: %s (%.0f yards)"
 L["ZOOM_SET_MESSAGE"] = "Zoom set to %s (%.1f yards)"
 
 L["WARNING_TEXT"] = "This addon extends the camera distance limit beyond default UI slider to improve visibility during raids, dungeons, and PvP."
@@ -96,3 +100,7 @@ L["DEBUG_LEVEL_ERROR"] = "Error"
 L["DEBUG_LEVEL_WARNING"] = "Warning"
 L["DEBUG_LEVEL_INFO"] = "Info"
 L["DEBUG_LEVEL_DEBUG"] = "Verbose"
+
+-- *** Toggle States ***
+L["ENABLED"] = "|cff00ff00Enabled|r"
+L["DISABLED"] = "|cffff0000Disabled|r"
