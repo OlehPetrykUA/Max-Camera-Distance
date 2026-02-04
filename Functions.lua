@@ -30,6 +30,12 @@ local transitionTimer = nil
 
 local isInternalUpdate = false
 
+if ns.SizeDetector then
+    ns.SizeDetector:SetRecalculateCallback(function()
+        Functions:RecalculateSizeZoom()
+    end)
+end
+
 -- ================= TRAVEL / FLIGHT FORMS & BUFFS (ALL VERSIONS) =================
 -- Used for checking shapeshift forms and buffs (UNIT_AURA)
 -- Covers Classic → TBC → WotLK → Retail → Shadowlands → Dragonflight
@@ -195,6 +201,22 @@ local function ApplyZoomTransition(targetYards, transitionTime)
     end
 end
 
+function Functions:RecalculateSizeZoom()
+    if not (ns.Database and ns.Database.db) then return end
+    local db = ns.Database.db.profile
+    if not db.scaleCombatZoomBySize then return end
+    if currentZoomState ~= ZOOM_STATE_COMBAT then return end
+    if not ns.SizeDetector then return end
+
+    local sizeYards = ns.SizeDetector:GetLargestAliveYards(db.combatZoomFactor, db.sizeZoomMaxYards)
+    if not sizeYards then return end
+
+    local transitionTime = db.zoomTransitionTime or 0.5
+    ApplyZoomTransition(sizeYards, transitionTime)
+
+    Functions:logMessage("info", string.format("Size zoom adjusted to %.1f yards", sizeYards))
+end
+
 function Functions:UpdateSmartZoomState(event)
     if not (ns.Database and ns.Database.db) then return end
     local db = ns.Database.db.profile
@@ -223,6 +245,12 @@ function Functions:UpdateSmartZoomState(event)
     if db.autoCombatZoom and (inCombat or forceCombat) then
         newState = ZOOM_STATE_COMBAT
         targetYards = db.combatZoomFactor
+        if db.scaleCombatZoomBySize and ns.SizeDetector then
+            local sizeYards = ns.SizeDetector:GetLargestAliveYards(db.combatZoomFactor, db.sizeZoomMaxYards)
+            if sizeYards and sizeYards > targetYards then
+                targetYards = sizeYards
+            end
+        end
     elseif db.autoMountZoom and isMounted then
         newState = ZOOM_STATE_MOUNT
         targetYards = db.mountZoomFactor
@@ -233,6 +261,11 @@ function Functions:UpdateSmartZoomState(event)
     end
 
     CancelTransition()
+    if currentZoomState == ZOOM_STATE_COMBAT and newState ~= ZOOM_STATE_COMBAT then
+        if ns.SizeDetector then
+            ns.SizeDetector:ClearThreats()
+        end
+    end
     currentZoomState = newState
 
     local transitionTime = db.zoomTransitionTime or 0.5
@@ -357,6 +390,12 @@ function Functions:RestoreZoom()
 
         if db.autoCombatZoom and (inCombat or forceCombat) then
             targetYards = db.combatZoomFactor
+            if db.scaleCombatZoomBySize and ns.SizeDetector then
+                local sizeYards = ns.SizeDetector:GetLargestAliveYards(db.combatZoomFactor, db.sizeZoomMaxYards)
+                if sizeYards and sizeYards > targetYards then
+                    targetYards = sizeYards
+                end
+            end
             stateName = "combat"
         elseif db.autoMountZoom and isMounted then
             targetYards = db.mountZoomFactor
@@ -423,5 +462,35 @@ function Functions:SlashCmdHandler(msg)
 
     else
         Functions:SendMessage(L["CMD_USAGE"] or "Usage: /mcd config | autozoom | automount | restore")
+    end
+end
+
+function Functions:OnTargetChanged(event)
+    if not (ns.Database and ns.Database.db) then return end
+    local db = ns.Database.db.profile
+    if not db.scaleCombatZoomBySize then return end
+    if currentZoomState ~= ZOOM_STATE_COMBAT then return end
+    if UnitInVehicle and UnitInVehicle("player") then return end
+    if not ns.SizeDetector then return end
+
+    if UnitExists("target") then
+        ns.SizeDetector:MeasureTarget("target")
+        Functions:RecalculateSizeZoom()
+    end
+end
+
+function Functions:OnCombatLogEvent()
+    if not (ns.Database and ns.Database.db) then return end
+    local db = ns.Database.db.profile
+    if not db.scaleCombatZoomBySize then return end
+    if not ns.SizeDetector then return end
+
+    local _, subEvent, _, _, _, _, _, destGUID = CombatLogGetCurrentEventInfo()
+
+    if subEvent == "UNIT_DIED" or subEvent == "UNIT_DESTROYED" or subEvent == "UNIT_DISSIPATES" then
+        local wasTracked = ns.SizeDetector:OnUnitDied(destGUID)
+        if wasTracked and currentZoomState == ZOOM_STATE_COMBAT then
+            Functions:RecalculateSizeZoom()
+        end
     end
 end
