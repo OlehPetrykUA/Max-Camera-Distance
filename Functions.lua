@@ -174,6 +174,7 @@ local function CancelTransition()
 end
 
 local function ApplyZoomTransition(targetYards, transitionTime)
+    CancelTransition()
     local targetFactor  = targetYards / CONVERSION_RATIO
     local currentFactor = tonumber(C_CVar.GetCVar("cameraDistanceMaxZoomFactor")) or 0
 
