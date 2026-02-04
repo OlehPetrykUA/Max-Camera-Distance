@@ -100,10 +100,19 @@ local eventHandlers = {
 
     -- Синхронізація налаштувань, якщо гру змінює інший аддон або консоль
     CVAR_UPDATE = function(event, cvarName, value)
-        if cvarName == "cameraDistanceMaxZoomFactor" or cvarName == "cameraDistanceMax" then
-            if ns.Functions then
-                SafeCall(ns.Functions.OnCVarUpdate, "OnCVarUpdate", ns.Functions, event, cvarName, value)
-            end
+        local trackedCVars = {
+            cameraDistanceMaxZoomFactor = true,
+            cameraDistanceMax = true,
+            cameraDistanceMoveSpeed = true,
+            cameraYawMoveSpeed = true,
+            cameraPitchMoveSpeed = true,
+            cameraReduceUnexpectedMovement = true,
+            cameraIndirectVisibility = true,
+            resampleAlwaysSharpen = true,
+            SoftTargetIconGameObject = true,
+        }
+        if trackedCVars[cvarName] and ns.Functions then
+            SafeCall(ns.Functions.OnCVarUpdate, "OnCVarUpdate", ns.Functions, event, cvarName, value)
         end
     end,
 }
