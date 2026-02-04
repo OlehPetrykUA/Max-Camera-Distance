@@ -60,8 +60,6 @@ Database.DEFAULT_DEBUG_LEVEL = {
 }
 
 function Database:InitDB()
-    -- Запобіжник self
-    if not self or type(self) ~= "table" then self = Database end
 
     local defaultProfile = {
         maxZoomFactor = Database.DEFAULTS.ZOOM_DISTANCE,
@@ -123,9 +121,8 @@ end
 
 -- *** Setters/Getters ***
 function Database:SetZoomFactor(yards)
-    local dbObj = (self and self.db) and self or Database
-    if dbObj.db and dbObj.db.profile then
-        dbObj.db.profile.maxZoomFactor = tonumber(yards) or Database.DEFAULTS.ZOOM_DISTANCE
+    if self.db and self.db.profile then
+        self.db.profile.maxZoomFactor = tonumber(yards) or Database.DEFAULTS.ZOOM_DISTANCE
         if ns.Functions and ns.Functions.AdjustCamera then ns.Functions:AdjustCamera() end
     end
 end
