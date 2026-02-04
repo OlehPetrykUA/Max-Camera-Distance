@@ -336,6 +336,55 @@ function Functions:ClearAllQuestTracking()
     Functions:SendMessage(string.format(L["QUEST_TRACKER_CLEARED"] or "Stopped tracking %d quests.", numWatches))
 end
 
+function Functions:RestoreZoom()
+    if not (ns.Database and ns.Database.db) then return end
+    local db = ns.Database.db.profile
+    local LibCamera = LibStub("LibCamera-1.0", true)
+
+    local targetYards = db.maxZoomFactor
+    local stateName = "normal"
+
+    if db.autoCombatZoom or db.autoMountZoom then
+        local inCombat = UnitAffectingCombat("player")
+        local inInstance, instanceType = IsInInstance()
+        local forceCombat = db.forceCombatInInstance and inInstance and (
+            instanceType == "party" or
+            instanceType == "raid"  or
+            instanceType == "arena" or
+            instanceType == "pvp"
+        )
+        local isMounted = IsInTravelForm()
+
+        if db.autoCombatZoom and (inCombat or forceCombat) then
+            targetYards = db.combatZoomFactor
+            stateName = "combat"
+        elseif db.autoMountZoom and isMounted then
+            targetYards = db.mountZoomFactor
+            stateName = "mount"
+        elseif db.autoCombatZoom then
+            targetYards = db.minZoomFactor
+            stateName = "normal"
+        end
+    end
+
+    CancelTransition()
+    local targetFactor = targetYards / CONVERSION_RATIO
+    UpdateCVar("cameraDistanceMaxZoomFactor", targetFactor)
+
+    if LibCamera then
+        LibCamera:SetZoom(targetYards, db.zoomTransitionTime or 0.5)
+    end
+
+    currentZoomState = stateName == "combat" and ZOOM_STATE_COMBAT
+        or stateName == "mount" and ZOOM_STATE_MOUNT
+        or ZOOM_STATE_NONE
+
+    Functions:SendMessage(string.format(
+        L["SETTINGS_RESTORED"] or "Restored: %s (%.0f yards)",
+        stateName, targetYards
+    ))
+end
+
 function Functions:SlashCmdHandler(msg)
     local command = strlower(msg or "")
 
@@ -363,15 +412,16 @@ function Functions:SlashCmdHandler(msg)
         Functions:SendMessage("Auto Combat Zoom: " .. state)
 
     elseif command == "automount" then
-        -- Перемикач Mount Zoom
         db.autoMountZoom = not db.autoMountZoom
-        Functions:AdjustCamera() -- Застосовуємо зміни одразу
+        Functions:AdjustCamera()
         
         local state = db.autoMountZoom and (L["ENABLED"] or "|cff00ff00Enabled|r") or (L["DISABLED"] or "|cffff0000Disabled|r")
         Functions:SendMessage("Auto Mount Zoom: " .. state)
 
+    elseif command == "restore" then
+        Functions:RestoreZoom()
+
     else
-        -- Оновлена довідка
-        Functions:SendMessage(L["CMD_USAGE"] or "Usage: /mcd config | autozoom | automount")
+        Functions:SendMessage(L["CMD_USAGE"] or "Usage: /mcd config | autozoom | automount | restore")
     end
 end
