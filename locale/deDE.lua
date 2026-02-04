@@ -28,6 +28,12 @@ L["AUTO_ZOOM_COMBAT_DESC"] = "Wenn aktiviert, zoomt die Kamera bei Kampfbeginn a
 L["FORCE_COMBAT_INSTANCE"] = "Instanzen als Kampf behandeln"
 L["FORCE_COMBAT_INSTANCE_DESC"] = "Wenn du dich in einem Dungeon, Schlachtzug, einer Arena oder einem Schlachtfeld befindest, wird immer die Kampfdistanz verwendet — auch außerhalb des Kampfes."
 
+L["SCALE_ZOOM_BY_SIZE"] = "Zoom an Gegnergröße anpassen"
+L["SCALE_ZOOM_BY_SIZE_DESC"] = "Zoomt die Kamera bei größeren Gegnern (Bosse, Riesen) dynamisch weiter heraus. Die Kamera zoomt nie näher als die eingestellte Kampfdistanz. Wenn ein großer Gegner stirbt, passt sich die Kamera an den nächstgrößten Gegner an."
+
+L["SIZE_ZOOM_MAX_YARDS"] = "Max. Größendistanz"
+L["SIZE_ZOOM_MAX_YARDS_DESC"] = "Maximale Kameradistanz für die größten Gegner. Die Kampfdistanz dient als Mindestgrenze."
+
 L["MAX_COMBAT_ZOOM_FACTOR"] = "Distanz im Kampf"
 L["MAX_COMBAT_ZOOM_FACTOR_DESC"] = "Die gewünschte Kameradistanz, während du dich IM KAMPF befindest."
 

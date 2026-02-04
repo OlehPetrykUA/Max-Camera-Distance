@@ -183,6 +183,30 @@ function Config:SetupOptions()
                         width = "full",
                         disabled = function() return not GetOption("autoCombatZoom") end,
                     },
+                    scaleCombatZoomBySize = {
+                        type = "toggle",
+                        name = L["SCALE_ZOOM_BY_SIZE"],
+                        desc = L["SCALE_ZOOM_BY_SIZE_DESC"],
+                        get = function() return GetOption("scaleCombatZoomBySize") end,
+                        set = function(_, val) SetOption("scaleCombatZoomBySize", val) end,
+                        order = 12.5,
+                        width = "full",
+                        disabled = function() return not GetOption("autoCombatZoom") end,
+                    },
+                    sizeZoomMaxYards = {
+                        type = "range",
+                        name = L["SIZE_ZOOM_MAX_YARDS"] .. " (Yards)",
+                        desc = L["SIZE_ZOOM_MAX_YARDS_DESC"],
+                        min = 1.0,
+                        max = defaults.MAX_POSSIBLE_DISTANCE or 39,
+                        step = 1.0,
+                        get = function() return GetOption("sizeZoomMaxYards") end,
+                        set = function(_, val) SetOption("sizeZoomMaxYards", val) end,
+                        order = 12.6,
+                        disabled = function()
+                            return not GetOption("autoCombatZoom") or not GetOption("scaleCombatZoomBySize")
+                        end,
+                    },
                     combatMaxZoom = {
                         type = "range",
                         name = L["MAX_COMBAT_ZOOM_FACTOR"] .. " (Yards)",

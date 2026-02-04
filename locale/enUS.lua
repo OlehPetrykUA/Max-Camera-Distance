@@ -32,6 +32,12 @@ L["AUTO_ZOOM_COMBAT_DESC"] = "If enabled, the camera will automatically zoom out
 L["FORCE_COMBAT_INSTANCE"] = "Treat Instances as Combat"
 L["FORCE_COMBAT_INSTANCE_DESC"] = "When inside a dungeon, raid, arena, or battleground, always use combat distance even outside of actual combat."
 
+L["SCALE_ZOOM_BY_SIZE"] = "Scale Zoom by Enemy Size"
+L["SCALE_ZOOM_BY_SIZE_DESC"] = "Dynamically zoom the camera further out for larger enemies (bosses, giants). The camera will never zoom closer than your Combat Distance setting. When a large enemy dies, the camera adjusts to the next largest threat."
+
+L["SIZE_ZOOM_MAX_YARDS"] = "Max Size Distance"
+L["SIZE_ZOOM_MAX_YARDS_DESC"] = "The maximum camera distance for the largest enemies. Combat Distance acts as the minimum floor."
+
 L["MAX_COMBAT_ZOOM_FACTOR"] = "Combat Distance"
 L["MAX_COMBAT_ZOOM_FACTOR_DESC"] = "The target camera distance when you are IN combat."
 

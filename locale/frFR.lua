@@ -28,6 +28,12 @@ L["AUTO_ZOOM_COMBAT_DESC"] = "Si activé, la caméra s'éloignera automatiquemen
 L["FORCE_COMBAT_INSTANCE"] = "Traiter les instances comme du combat"
 L["FORCE_COMBAT_INSTANCE_DESC"] = "Dans un donjon, raid, arène ou champ de bataille, utiliser toujours la distance de combat même hors combat réel."
 
+L["SCALE_ZOOM_BY_SIZE"] = "Adapter le zoom à la taille de l'ennemi"
+L["SCALE_ZOOM_BY_SIZE_DESC"] = "Éloigne dynamiquement la caméra pour les ennemis plus grands (boss, géants). La caméra ne zoomera jamais plus près que votre Distance de combat. Quand un grand ennemi meurt, la caméra s'adapte au prochain ennemi le plus grand."
+
+L["SIZE_ZOOM_MAX_YARDS"] = "Distance max. par taille"
+L["SIZE_ZOOM_MAX_YARDS_DESC"] = "Distance maximale de la caméra pour les plus grands ennemis. La Distance de combat sert de plancher minimum."
+
 L["MAX_COMBAT_ZOOM_FACTOR"] = "Distance en combat"
 L["MAX_COMBAT_ZOOM_FACTOR_DESC"] = "La distance cible de la caméra lorsque vous êtes EN combat."
 
