@@ -465,25 +465,27 @@ function Functions:SlashCmdHandler(msg)
     end
 end
 
-function Functions:OnTargetChanged(event)
+local sizeFrame = CreateFrame("Frame")
+
+sizeFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+sizeFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+sizeFrame:SetScript("OnEvent", function(_, event)
     if not (ns.Database and ns.Database.db) then return end
     local db = ns.Database.db.profile
     if not db.scaleCombatZoomBySize then return end
-    if currentZoomState ~= ZOOM_STATE_COMBAT then return end
-    if UnitInVehicle and UnitInVehicle("player") then return end
     if not ns.SizeDetector then return end
 
-    if UnitExists("target") then
-        ns.SizeDetector:MeasureTarget("target")
-        Functions:RecalculateSizeZoom()
+    if event == "PLAYER_TARGET_CHANGED" then
+        if currentZoomState ~= ZOOM_STATE_COMBAT then return end
+        if UnitInVehicle and UnitInVehicle("player") then return end
+
+        if UnitExists("target") then
+            ns.SizeDetector:MeasureTarget("target")
+            Functions:RecalculateSizeZoom()
+        end
+        return
     end
-end
-
-function Functions:OnCombatLogEvent()
-    if not (ns.Database and ns.Database.db) then return end
-    local db = ns.Database.db.profile
-    if not db.scaleCombatZoomBySize then return end
-    if not ns.SizeDetector then return end
 
     local _, subEvent, _, _, _, _, _, destGUID = CombatLogGetCurrentEventInfo()
 
@@ -493,4 +495,4 @@ function Functions:OnCombatLogEvent()
             Functions:RecalculateSizeZoom()
         end
     end
-end
+end)

@@ -99,18 +99,6 @@ local eventHandlers = {
     end,
 
     -- Синхронізація налаштувань, якщо гру змінює інший аддон або консоль
-    PLAYER_TARGET_CHANGED = function(event)
-        if ns.Functions and ns.Functions.OnTargetChanged then
-            SafeCall(ns.Functions.OnTargetChanged, "TargetChanged", ns.Functions, event)
-        end
-    end,
-
-    COMBAT_LOG_EVENT_UNFILTERED = function(event)
-        if ns.Functions and ns.Functions.OnCombatLogEvent then
-            SafeCall(ns.Functions.OnCombatLogEvent, "CombatLog", ns.Functions)
-        end
-    end,
-
     CVAR_UPDATE = function(event, cvarName, value)
         local trackedCVars = {
             cameraDistanceMaxZoomFactor = true,
