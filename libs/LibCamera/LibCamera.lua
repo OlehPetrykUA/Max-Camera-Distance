@@ -1,7 +1,7 @@
 ---------------
 -- LIBCAMERA --
 ---------------
-local MAJOR, MINOR = "LibCamera-1.0", 3;
+local MAJOR, MINOR = "LibCamera-1.0", 4;
 local LibCamera = LibStub:NewLibrary(MAJOR, MINOR);
 
 if (not LibCamera) then
@@ -14,7 +14,8 @@ LibCamera.frame = LibCamera.frame or CreateFrame("Frame");
 ------------
 -- LOCALS --
 ------------
-local onUpdateFunc = {};
+LibCamera.onUpdateFunc = LibCamera.onUpdateFunc or {};
+local onUpdateFunc = LibCamera.onUpdateFunc;
 
 
 --------------
@@ -39,8 +40,10 @@ local function FrameOnUpdate(self, time)
 
         -- However, setting entries to nil while traversing a table is possible.
         for k, func in pairs(onUpdateFuncCopy) do
-            if (func() == nil) then
-                onUpdateFunc[k] = nil;
+            if (onUpdateFunc[k] ~= nil) then
+                if (func() == nil) then
+                    onUpdateFunc[k] = nil;
+                end
             end
         end
 
@@ -52,6 +55,10 @@ local function FrameOnUpdate(self, time)
         LibCamera.frame:SetScript("OnUpdate", nil);
     end
 
+end
+
+if (next(onUpdateFunc) ~= nil) then
+    LibCamera.frame:SetScript("OnUpdate", FrameOnUpdate);
 end
 
 local function SetupOnUpdate()
@@ -82,7 +89,7 @@ local function CancelOnUpdateFunc(func)
         -- remove from the list
         onUpdateFunc[func] = nil;
 
-        if (func.callback) then
+        if (type(func) == 'table' and func.callback) then
             func.callback(true);
         end
     end
@@ -93,15 +100,15 @@ end
 -- UTILITY --
 -------------
 local function getZoomSpeed()
-    return tonumber(GetCVar("cameraZoomSpeed"));
+    return tonumber(GetCVar("cameraZoomSpeed")) or 1;
 end
 
 local function getYawSpeed()
-    return tonumber(GetCVar("cameraYawMoveSpeed"));
+    return tonumber(GetCVar("cameraYawMoveSpeed")) or 1;
 end
 
 local function getPitchSpeed()
-    return tonumber(GetCVar("cameraPitchMoveSpeed"));
+    return tonumber(GetCVar("cameraPitchMoveSpeed")) or 1;
 end
 
 
@@ -130,6 +137,11 @@ local function getEaseVelocity(easingFunc, increment, t, b, c, d, ...)
         -- after the last increment, can't go beyond d
         return (easingFunc(t, b, c, d, ...) - easingFunc(t - increment, b, c, d, ...))/increment;
     end
+
+    if (d > 0) then
+        return c / d;
+    end
+    return 0;
 end
 
 local function rebaseEaseTime(easingFunc, precision, x, t, b, c, d, ...)
@@ -286,6 +298,10 @@ function LibCamera:SetZoom(endValue, duration, easingFunc, callback)
             return true;
         else
 
+            if (easingZoom) then
+                easingZoom.callback = nil;
+            end
+
             -- we're done, either out of time, or beyond position
             self:StopZooming();
 
@@ -297,15 +313,9 @@ function LibCamera:SetZoom(endValue, duration, easingFunc, callback)
                 return nil;
             end
 
-            -- call the callback if provided
             if (callback) then
-                -- Not necessary to call callback() here, because it was already called as easingZoom.callback by StopZooming() above.
-                -- callback();
-
-                if (easingZoom) then
-                    easingZoom.callback = nil;
-                end
-            end;
+                callback();
+            end
             return nil;
         end
     end
@@ -326,7 +336,7 @@ function LibCamera:SetZoomUsingCVar(endValue, duration, callback)
 
     local beginValue = GetCameraZoom();
     local change = endValue - beginValue;
-    local speed = math.abs(math.min(50, math.abs((change/duration))));
+    local speed = math.min(50, math.abs(change/duration));
 
     local startTime = GetTime();
     local endTime = startTime + duration;
@@ -367,15 +377,16 @@ function LibCamera:SetZoomUsingCVar(endValue, duration, callback)
             -- we're still zooming or we should be
             return true;
         else
+            if (cvarZoom) then
+                cvarZoom.callback = nil;
+            end
+
             -- we should have stopped zooming
             self:StopZooming();
+
             if (callback) then
                 callback();
-
-                if (cvarZoom) then
-                    cvarZoom.callback = nil;
-                end
-            end;
+            end
             return nil;
         end
     end
@@ -396,14 +407,15 @@ function LibCamera:CustomZoom(zoomFunction, callback)
         local speed = zoomFunction();
 
         if (not speed) then
+            if (customZoom) then
+                customZoom.callback = nil;
+            end
+
             -- zoom function returned nil, stop the camera zoom, unregister the function
             self:StopZooming();
+
             if (callback) then
                 callback();
-
-                if (customZoom) then
-                    customZoom.callback = nil;
-                end
             end
             return nil;
         end
@@ -428,7 +440,7 @@ function LibCamera:CustomZoom(zoomFunction, callback)
 end
 
 
--- A function to function to check if zooming is in progress.
+-- A function to check if zooming is in progress.
 function LibCamera:IsZooming()
     return (easingZoom ~= nil) or (cvarZoom ~= nil) or (customZoom ~= nil);
 end
@@ -507,7 +519,11 @@ function LibCamera:Yaw(endValue, duration, easingFunc, callback)
             -- still in time
             local speed = getEaseVelocity(easingFunc, 1.0/60.0, currentTime - beginTime, beginValue, change, duration);
 
-            -- this is the elasped yaw, used if we canceled ahead of time
+            if (not speed) then
+                return true;
+            end
+
+            -- this is the elapsed yaw, used if we canceled ahead of time
             lastYaw = easingFunc(currentTime - beginTime, beginValue, change, duration);
 
             if (speed > 0) then
@@ -518,17 +534,18 @@ function LibCamera:Yaw(endValue, duration, easingFunc, callback)
 
             return true;
         else
-            -- stop the camera, we're there
             lastYaw = nil;
+
+            if (easingYaw) then
+                easingYaw.callback = nil;
+            end
+
+            -- stop the camera, we're there
             self:StopYawing();
 
             -- call the callback if provided
             if (callback) then
                 callback();
-
-                if (easingYaw) then
-                    easingYaw.callback = nil;
-                end
             end
 
             return nil;
@@ -543,7 +560,7 @@ function LibCamera:Yaw(endValue, duration, easingFunc, callback)
 end
 
 local continuousYaw;
-local elaspedYaw;
+local elapsedYaw;
 function LibCamera:BeginContinuousYaw(endSpeed, duration)
     self:StopYawing();
 
@@ -551,7 +568,7 @@ function LibCamera:BeginContinuousYaw(endSpeed, duration)
     local lastSpeed, lastTime;
     local isCoasting = false;
 
-    elaspedYaw = 0;
+    elapsedYaw = 0;
 
     local func = function()
         local speed = endSpeed;
@@ -560,7 +577,7 @@ function LibCamera:BeginContinuousYaw(endSpeed, duration)
 
         -- accumulate the yaw into elapsed yaw, so that we can return it when we stop
         if (lastSpeed and lastTime) then
-            elaspedYaw = elaspedYaw + (lastSpeed * (currentTime - lastTime))
+            elapsedYaw = elapsedYaw + (lastSpeed * (currentTime - lastTime))
         end
         lastTime = GetTime();
 
@@ -624,9 +641,9 @@ function LibCamera:StopYawing()
         continuousYaw = nil;
 
         -- return elapsed yaw
-        if (elaspedYaw) then
-            yawAmount = elaspedYaw;
-            elaspedYaw = nil;
+        if (elapsedYaw) then
+            yawAmount = elapsedYaw;
+            elapsedYaw = nil;
         end
     end
 
@@ -666,7 +683,11 @@ function LibCamera:Pitch(endValue, duration, easingFunc, callback)
             -- still in time
             local speed = getEaseVelocity(easingFunc, 1.0/60.0, currentTime - beginTime, beginValue, change, duration);
 
-            -- this is the elasped pitch, used if we canceled ahead of time
+            if (not speed) then
+                return true;
+            end
+
+            -- this is the elapsed pitch, used if we canceled ahead of time
             lastPitch = easingFunc(currentTime - beginTime, beginValue, change, duration);
 
             if (speed > 0) then
@@ -679,16 +700,16 @@ function LibCamera:Pitch(endValue, duration, easingFunc, callback)
         else
             lastPitch = nil;
 
+            if (easingPitch) then
+                easingPitch.callback = nil;
+            end
+
             -- stop the camera, we're there
             self:StopPitching();
 
             -- call the callback if provided
             if (callback) then
                 callback();
-
-                if (easingPitch) then
-                    easingPitch.callback = nil;
-                end
             end
 
             return nil;
