@@ -203,7 +203,7 @@ function Functions:UpdateSmartZoomState(event)
 
     local inCombat = UnitAffectingCombat("player")
     local inInstance, instanceType = IsInInstance()
-    local forceCombat = inInstance and (
+    local forceCombat = db.forceCombatInInstance and inInstance and (
         instanceType == "party" or
         instanceType == "raid"  or
         instanceType == "arena" or

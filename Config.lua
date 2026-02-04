@@ -173,6 +173,16 @@ function Config:SetupOptions()
                         order = 11,
                         width = "full",
                     },
+                    forceCombatInInstance = {
+                        type = "toggle",
+                        name = L["FORCE_COMBAT_INSTANCE"],
+                        desc = L["FORCE_COMBAT_INSTANCE_DESC"],
+                        get = function() return GetOption("forceCombatInInstance") end,
+                        set = function(_, val) SetOption("forceCombatInInstance", val) end,
+                        order = 12,
+                        width = "full",
+                        disabled = function() return not GetOption("autoCombatZoom") end,
+                    },
                     combatMaxZoom = {
                         type = "range",
                         name = L["MAX_COMBAT_ZOOM_FACTOR"] .. " (Yards)",
@@ -182,7 +192,7 @@ function Config:SetupOptions()
                         step = 1.0,
                         get = function() return GetOption("combatZoomFactor") end,
                         set = function(_, val) SetOption("combatZoomFactor", val) end,
-                        order = 12,
+                        order = 13,
                         disabled = function() return not GetOption("autoCombatZoom") end,
                     },
                     combatMinZoom = {
@@ -194,7 +204,7 @@ function Config:SetupOptions()
                         step = 1.0,
                         get = function() return GetOption("minZoomFactor") end,
                         set = function(_, val) SetOption("minZoomFactor", val) end,
-                        order = 13,
+                        order = 14,
                         disabled = function() return not GetOption("autoCombatZoom") end,
                     },
                     

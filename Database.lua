@@ -48,6 +48,7 @@ Database.DEFAULTS = {
     REDUCE_UNEXPECTED_MOVEMENT = false,
     CAMERA_INDIRECT_VISIBILITY = true,
     AUTO_COMBAT_ZOOM = false,
+    FORCE_COMBAT_IN_INSTANCE = true,
     AUTO_MOUNT_ZOOM = false,
     COMBAT_ZOOM_FACTOR = MAX_YARDS,
     MOUNT_ZOOM_FACTOR = MAX_YARDS,
@@ -73,6 +74,7 @@ function Database:InitDB()
         zoomTransitionTime = Database.DEFAULTS.ZOOM_TRANSITION_TIME,
 
         autoCombatZoom = Database.DEFAULTS.AUTO_COMBAT_ZOOM,
+        forceCombatInInstance = Database.DEFAULTS.FORCE_COMBAT_IN_INSTANCE,
         combatZoomFactor = Database.DEFAULTS.COMBAT_ZOOM_FACTOR,
         autoMountZoom = Database.DEFAULTS.AUTO_MOUNT_ZOOM,
         mountZoomFactor = Database.DEFAULTS.MOUNT_ZOOM_FACTOR,
